@@ -27,6 +27,10 @@ int main( int argc, char* argv[] ) {
     cout << "Command executed" << endl;
 
   }
+  else{
+    cout << "Command failed" << endl;
+    exit(EXIT_FAILURE);
+  }  
 
   return EXIT_SUCCESS;
 
