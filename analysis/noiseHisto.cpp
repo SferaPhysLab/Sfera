@@ -6,6 +6,7 @@
 #include "TH1D.h"
 #include "TCanvas.h"
 
+#define N_soglia 50
 
 int main( int argc, char* argv[] ) {
 
@@ -57,7 +58,7 @@ int main( int argc, char* argv[] ) {
 
     //std::cout << "charge = " << vcharge[channel] << std::endl;
 
-    for(int i = 0; i < 50; i++){
+    for(int i = 0; i < N_soglia; i++){
     h_noise->Fill(pshape[channel][i]);  // riempie istogramma della carica a canale fissato (fornito dall'utente)
     }
   } // for entries
