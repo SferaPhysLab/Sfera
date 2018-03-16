@@ -51,29 +51,33 @@ int main( int argc, char* argv[] ) {
 
   int ev;
   int nch;
-  int chs;               //CANALE CHE SCINTILLA
+  int chs        [128];               //CANALE CHE SCINTILLA
   float base     [128];
   float vamp     [128];
   float vcharge  [128];
   float letime   [128];
   float tetime   [128];
+  float lmttime  [128];
   //float ratecount[128];
 
   tree->Branch( "ev"       , &ev      , "ev/I"            );
   tree->Branch( "nch"      , &nch     , "nch/I"           );
-  tree->Branch( "chs"       , &chs      , "chs/I"            );
+  tree->Branch( "chs"      , &chs     , "chs[nch]/I"      );
   tree->Branch( "base"     , base     , "base[nch]/F"     );
   tree->Branch( "vamp"     , vamp     , "vamp[nch]/F"     );
   tree->Branch( "vcharge"  , vcharge  , "vcharge[nch]/F"  );
   tree->Branch( "letime"   , letime   , "letime[nch]/F"   );
   tree->Branch( "tetime"   , tetime   , "tetime[nch]/F"   );
+  tree->Branch( "lmttime"  , lmttime  , "lmttime[nch]/F"  );
+
   //tree->Branch( "ratecount", ratecount, "ratecount[nch]/F");
 
 
   std::string line;
   bool wasReadingEvent = false;
-  int i=1;    // VARIABILE CHE HO AGGIUNTO IO CHE SOSTITUISCE ch IN QUANTO IL PROGRAMMA USAVA ch COME INDICE DI base[], vamp[], vcharge[], letime[] e tetime[]. QUESTO VA BENE SE NON BUTTO EVENTI PERCHÈ IN QUEL CASO ch VA DA 0 A nch SENZA SALTARE NUMERI, IN QUESTO CASO PERÒ NON CONSIDERO TUTTI I CANALI E IL FATTO CHE INIZIALIZZO SOLO base[canale giusto] FA FALLIRE IL TREE.
+  int i=0;    // VARIABILE CHE HO AGGIUNTO IO CHE SOSTITUISCE ch IN QUANTO IL PROGRAMMA USAVA ch COME INDICE DI base[], vamp[], vcharge[], letime[] e tetime[]. QUESTO VA BENE SE NON BUTTO EVENTI PERCHÈ IN QUEL CASO ch VA DA 0 A nch SENZA SALTARE NUMERI, IN QUESTO CASO PERÒ NON CONSIDERO TUTTI I CANALI E IL FATTO CHE INIZIALIZZO SOLO base[canale giusto] FA FALLIRE IL TREE.
   int ch = -1;
+  int j=0;
 
 
   if( fs.good() ) {
@@ -103,7 +107,13 @@ int main( int argc, char* argv[] ) {
 
 
       if( words[0]=="===" && words[1]=="Event" && wasReadingEvent ) {
-	//if(i==1){std::cout << "evento: " << ev << "NESSUNA SCINTILLAZIONE "<<std::endl;}
+	for(j=0;j<15;j++){
+	  if(i!=1){
+	    if(i==j){std::cout << "EVENTO: " << ev << "..." << i << " SCINTILLAZIONI  "<<std::endl;}
+	  }
+	}
+	       
+
 	if( ev % 100 == 0 ) std::cout << "   ... analyzing event: " << ev << std::endl;
 	
 	tree->Fill();
@@ -119,13 +129,15 @@ int main( int argc, char* argv[] ) {
 	  //std::cout << "lt: " << words_cleaned[5]<<"tt: "<< words_cleaned[6]<<std::endl;
 	  //nch += 1;
 	  ch            = atoi(words_cleaned[0].c_str());
-	  chs            = atoi(words_cleaned[0].c_str());
+	  //std::cout << "evento:" << ev << "... canale: " << words_cleaned[0]<<std::endl;
+	  chs      [i]  = atoi(words_cleaned[0].c_str());
 	  //ev            = atoi(words_cleaned[1].c_str());
 	  base     [i] = atof(words_cleaned[2].c_str());
 	  vamp     [i] = atof(words_cleaned[3].c_str());
 	  vcharge  [i] = atof(words_cleaned[4].c_str());
 	  letime   [i] = atof(words_cleaned[5].c_str());
 	  tetime   [i] = atof(words_cleaned[6].c_str());
+	  lmttime  [i] = tetime[i]-letime[i];
 	  //ratecount[ch] = atof(words_cleaned[15].c_str());
 	  i+=1;
 	}
