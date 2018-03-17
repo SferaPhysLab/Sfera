@@ -1,5 +1,7 @@
 #include "TFile.h"
 #include "TTree.h"
+#include "TH1.h"
+
 
 #include <iostream>
 #include <fstream>
@@ -47,7 +49,8 @@ int main( int argc, char* argv[] ) {
 
   TFile* outfile = TFile::Open( outfileName.c_str(), "recreate" );
   TTree* tree = new TTree( "tree", "" );
-
+  float ratecount[128]={0};
+  int conteggiRateCount=0;
 
   int ev;
   int nch;
@@ -58,7 +61,6 @@ int main( int argc, char* argv[] ) {
   float letime   [128];
   float tetime   [128];
   float lmttime  [128];
-  //float ratecount[128];
 
   tree->Branch( "ev"       , &ev      , "ev/I"            );
   tree->Branch( "nch"      , &nch     , "nch/I"           );
@@ -75,7 +77,7 @@ int main( int argc, char* argv[] ) {
 
   std::string line;
   bool wasReadingEvent = false;
-  int i=0;    // VARIABILE CHE HO AGGIUNTO IO CHE SOSTITUISCE ch IN QUANTO IL PROGRAMMA USAVA ch COME INDICE DI base[], vamp[], vcharge[], letime[] e tetime[]. QUESTO VA BENE SE NON BUTTO EVENTI PERCHÈ IN QUEL CASO ch VA DA 0 A nch SENZA SALTARE NUMERI, IN QUESTO CASO PERÒ NON CONSIDERO TUTTI I CANALI E IL FATTO CHE INIZIALIZZO SOLO base[canale giusto] FA FALLIRE IL TREE.
+  int indArrayTree=0;    // VARIABILE CHE HO AGGIUNTO IO CHE SOSTITUISCE ch IN QUANTO IL PROGRAMMA USAVA ch COME INDICE DI base[], vamp[], vcharge[], letime[] e tetime[]. QUESTO VA BENE SE NON BUTTO EVENTI PERCHÈ IN QUEL CASO ch VA DA 0 A nch SENZA SALTARE NUMERI, IN QUESTO CASO PERÒ NON CONSIDERO TUTTI I CANALI E IL FATTO CHE INIZIALIZZO SOLO base[canale giusto] FA FALLIRE IL TREE.
   int ch = -1;
   int j=0;
 
@@ -85,31 +87,36 @@ int main( int argc, char* argv[] ) {
     std::cout << "-> Starting parsing file." << std::endl;
     nch=0;
 
-    while( getline(fs,line) ) {
+    while( getline(fs,line) ) {                       //estrae da fs i caratteri e li mette in line finchè non trova \n
 
       //std::cout << line << std::endl;
-      line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
+      line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());  //cancella da line tutti i \n
+      line.push_back(' ');                                                  //aggiunge uno spazio bianco alla fine così che words contenga anche l'ultima parola di line
 
       std::string delimiter = " ";
       size_t pos = 0;
       std::vector<std::string> words;
       std::string word;
-      while ((pos = line.find(delimiter)) != std::string::npos) {
-        word = line.substr(0, pos);
-        line.erase(0, pos + delimiter.length());
-        words.push_back(word);
+      while ((pos = line.find(delimiter)) != std::string::npos) {    //chiama pos la posizione del primo delimiter in line e se trova il delimiter in line e ci sono altri delimiter ...
+        word = line.substr(0, pos);                                  //seleziona la parte da 0 a pos e la mette in word
+        line.erase(0, pos + delimiter.length());                     //cancella la parte di line da 0 a pos + lunghezza delimiter
+        words.push_back(word);                                       //mette word alla fine di words
       }
-
+      //words.push_back(" 1.2");
       std::vector< std::string > words_cleaned;
       for( unsigned i=0; i<words.size(); ++i ) {
+	//std::cout<<words[i]<<std::endl;
         if( isNumber(words[i]) ) words_cleaned.push_back( words[i] );
+	//std::cout<<isNumber(words[i])<<std::endl;
       }
-
-
+      words_cleaned.push_back( words[words.size()-1] );
+      /*for( unsigned i=0; i<words_cleaned.size(); ++i ) {
+	std::cout<<words_cleaned[i]<<std::endl;
+	}*/
       if( words[0]=="===" && words[1]=="Event" && wasReadingEvent ) {
 	for(j=0;j<15;j++){
-	  if(i!=1){
-	    if(i==j){std::cout << "EVENTO: " << ev << "..." << i << " SCINTILLAZIONI  "<<std::endl;}
+	  if(indArrayTree!=1){
+	    if(indArrayTree==j){std::cout << "EVENTO: " << ev << "..." << indArrayTree << " SCINTILLAZIONI  "<<std::endl;}
 	  }
 	}
 	       
@@ -117,12 +124,19 @@ int main( int argc, char* argv[] ) {
 	if( ev % 100 == 0 ) std::cout << "   ... analyzing event: " << ev << std::endl;
 	
 	tree->Fill();
-	i=0;
+        indArrayTree=0;
 	nch = 0;
 	ch = -1;
 	wasReadingEvent = false;
 
-      } else if( words[0]!="===" && words_cleaned.size()==7 ) {
+      } else if( words[0]!="===" && words_cleaned.size()==8 ) {
+	if(ev>70){
+	  ratecount[stoi(words_cleaned[0])] += stof(words_cleaned[7]);
+	  conteggiRateCount++;
+	}
+	/*if(stod(words_cleaned[4])<-40000.){
+	  std::cout << "evento:" << ev << "... canale" << words_cleaned[0] <<"... carica: " << words_cleaned[4] << std::endl; //trova cariche enormi
+	  }*/
 	if(stod(words_cleaned[4])<-100.){ /*if aggiunto */
 	  nch += 1;
 	  wasReadingEvent = true;
@@ -130,16 +144,16 @@ int main( int argc, char* argv[] ) {
 	  //nch += 1;
 	  ch            = atoi(words_cleaned[0].c_str());
 	  //std::cout << "evento:" << ev << "... canale: " << words_cleaned[0]<<std::endl;
-	  chs      [i]  = atoi(words_cleaned[0].c_str());
+	  chs      [indArrayTree]  = atoi(words_cleaned[0].c_str());
 	  //ev            = atoi(words_cleaned[1].c_str());
-	  base     [i] = atof(words_cleaned[2].c_str());
-	  vamp     [i] = atof(words_cleaned[3].c_str());
-	  vcharge  [i] = atof(words_cleaned[4].c_str());
-	  letime   [i] = atof(words_cleaned[5].c_str());
-	  tetime   [i] = atof(words_cleaned[6].c_str());
-	  lmttime  [i] = tetime[i]-letime[i];
+	  base     [indArrayTree] = atof(words_cleaned[2].c_str());
+	  vamp     [indArrayTree] = atof(words_cleaned[3].c_str());
+	  vcharge  [indArrayTree] = atof(words_cleaned[4].c_str());
+	  letime   [indArrayTree] = atof(words_cleaned[5].c_str());
+	  tetime   [indArrayTree] = atof(words_cleaned[6].c_str());
+	  lmttime  [indArrayTree] = tetime[indArrayTree]-letime[indArrayTree];
 	  //ratecount[ch] = atof(words_cleaned[15].c_str());
-	  i+=1;
+	  indArrayTree+=1;
 	}
       }
 
@@ -164,6 +178,26 @@ int main( int argc, char* argv[] ) {
   outfile->Close();
 
   std::cout << "-> Tree saved in: " << outfile->GetName() << std::endl;
+  /*for(indArrayTree=0;indArrayTree<15;indArrayTree++){
+    ratecount[indArrayTree]=ratecount[indArrayTree]/(conteggiRateCount/12.);
+    std::cout << "canale:" << indArrayTree << "... rate medio:" << ratecount[indArrayTree] << std::endl;
+    }*/
+  std::string outfileName2;
+   pos = 0;
+   if((pos = fileName.find(".")) != std::string::npos) {
+    std::string prefix = fileName.substr(0, pos);
+    outfileName2 ="Rate_" + prefix + ".root";
+  }
+   std::cout << "histo rate saved in "<< outfileName2 << std::endl;
+  TFile f(outfileName2.c_str(), "recreate");
+  f.cd();
+  TH1F histo("rate_histo", "rate",17, 0, 16);
+  for(indArrayTree=0;indArrayTree<16;indArrayTree++){
+    ratecount[indArrayTree]=ratecount[indArrayTree]/(conteggiRateCount/12.);
+    histo.Fill(indArrayTree,ratecount[indArrayTree]);  
+  }
+  histo.Write();
+  f.Close();
 
   return 0;
 
