@@ -21,14 +21,15 @@ int main( int argc, char* argv[] ) {
   TTree* tree = (TTree*)file->Get("tree");
 
   std::cout << "-> Opened file " << fileName.c_str() << std::endl;
-  std::cout << "-> Will check spectrum of channel: " << channel << std::endl;
+  std::cout << "-> Will check spectrum of channel all non-empty channels " << std::endl;
 
 
   int ev;
   int nch, ch_max;
   float pshape[128][1024];
   float vcharge [128];
-
+  float offset = 1.;
+  
   tree->SetBranchAddress( "ev" , &ev     );
   tree->SetBranchAddress( "nch"   , &nch    );
   tree->SetBranchAddress( "pshape", &pshape );
@@ -68,7 +69,7 @@ int main( int argc, char* argv[] ) {
 
       c1->cd();
   
-      TH1D* h_noise = new TH1D(Form("h_charge_%d", channel), Form("h_charge_%d", channel), 1000, -100, 20000 );
+      TH1D* h_charge = new TH1D(Form("h_charge_%d", channel), Form("h_charge_%d", channel), 100, -100, 20000 );
   
       int nentries = tree->GetEntries();  //numero di righe della tabella (tree)
 
@@ -96,7 +97,7 @@ int main( int argc, char* argv[] ) {
       outfile->Close();
       std::cout << "Output file saved: " << Form("%s/histograms.root",plotsDir.c_str()) << std::endl;
 
-      delete h_noise;
+      delete h_charge;
       delete c1;
 
     } //else 
