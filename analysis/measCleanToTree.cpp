@@ -19,15 +19,17 @@ bool isNumber(const std::string& s);
 
 int main( int argc, char* argv[]) {
     
-    if( argc != 3 ) {
+    if( argc != 4 ) {
         
-        std::cout << "USAGE: ./measToTree [filename] [soglia] " << std::endl;
+        std::cout << "USAGE: ./measCleanToTree [filename] [soglia bassa] [soglia alta]" << std::endl;
         exit(1);
         
     }
     
     std::string fileName(argv[1]);
-    double soglia(std::stod(argv[2]));
+    double sogliab(std::stod(argv[2]));
+    double sogliaa(std::stod(argv[3]));
+
     if( boost::starts_with(argv[1], "../data/") ) {
         fileName.erase( 0, 8 );
     }
@@ -130,10 +132,7 @@ int main( int argc, char* argv[]) {
 		ratecount[stoi(words_cleaned[0])] += stof(words_cleaned[7]);
                     conteggiRateCount[stoi(words_cleaned[0])]++;
 	      }
-	      if(stod(words_cleaned[4])<soglia){
-		/*if(stof(words_cleaned[3])>-0.200){
-		  std::cout << "evento: " << words_cleaned[1] << "... ampiezza: " << words_cleaned[3] << std::endl;
-		  }*/
+	      if((stod(words_cleaned[4])<sogliab)&(stod(words_cleaned[4])>sogliaa)){
 		nch += 1;
 		wasReadingEvent = true;
 		ch            = atoi(words_cleaned[0].c_str());
