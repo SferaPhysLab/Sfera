@@ -19,16 +19,17 @@ bool isNumber(const std::string& s);
 
 int main( int argc, char* argv[]) {
     
-    if( argc != 4 ) {
+    if( argc != 5 ) {
         
-        std::cout << "USAGE: ./measToTree [filename] [soglia] [channel]" << std::endl;
+        std::cout << "USAGE: ./measCleanToTreeSC [filename] [soglia bassa] [soglia alta] [channel]" << std::endl;
         exit(1);
         
     }
     
     std::string fileName(argv[1]);
-    double soglia(std::stod(argv[2]));
-    int canale(std::stoi(argv[3]));
+    double sogliab(std::stod(argv[2]));
+    double sogliaa(std::stod(argv[3]));
+    int canale(std::stoi(argv[4]));
 
     if( boost::starts_with(argv[1], "../data/") ) {
         fileName.erase( 0, 8 );
@@ -112,19 +113,19 @@ int main( int argc, char* argv[]) {
                 wasReadingEvent = false;
                 
             } else if( words[0]!="===" && words_cleaned.size()==8 ) {
-	      if(atoi(words_cleaned[0].c_str())==canale){
-		if(stod(words_cleaned[4])<soglia){
-		  wasReadingEvent = true;
-		  ch            = atoi(words_cleaned[0].c_str());
-		  base      = atof(words_cleaned[2].c_str());
-		  vamp      = atof(words_cleaned[3].c_str());
-		  vcharge   = atof(words_cleaned[4].c_str());
-		  spectrum  = fabs(vcharge);
-		  letime    = atof(words_cleaned[5].c_str());
-		  tetime    = atof(words_cleaned[6].c_str());
-		  lmttime   = tetime-letime;
-		}
-	      }
+                if(atoi(words_cleaned[0].c_str())==canale){
+                    if((stod(words_cleaned[4])<sogliab)&(stod(words_cleaned[4])>sogliaa)){
+                        wasReadingEvent = true;
+                        ch            = atoi(words_cleaned[0].c_str());
+                        base      = atof(words_cleaned[2].c_str());
+                        vamp      = atof(words_cleaned[3].c_str());
+                        vcharge   = atof(words_cleaned[4].c_str());
+                        spectrum  = fabs(vcharge);
+                        letime    = atof(words_cleaned[5].c_str());
+                        tetime    = atof(words_cleaned[6].c_str());
+                        lmttime   = tetime-letime;
+                    }
+                }
             }
 	    
             if( words[0]=="===" && words[1]=="Event" && wasReadingEvent==false ) {
