@@ -103,6 +103,8 @@ int main( int argc, char* argv[] ) {
 
         if( ev % 100 == 0 ) std::cout << "   ... analyzing event: " << ev << std::endl;
 
+	nch = ch + 1;
+	
         tree->Fill();
  
         nch = 0;
@@ -118,8 +120,8 @@ int main( int argc, char* argv[] ) {
         ch            = atoi(words_cleaned[0].c_str());
         //ev            = atoi(words_cleaned[1].c_str());
         base     [ch] = atof(words_cleaned[2].c_str());
-        vamp     [ch] = atof(words_cleaned[3].c_str());
-        vcharge  [ch] = atof(words_cleaned[4].c_str());
+        vamp     [ch] = - atof(words_cleaned[3].c_str());
+        vcharge  [ch] = - atof(words_cleaned[4].c_str());
         letime   [ch] = atof(words_cleaned[5].c_str());
         tetime   [ch] = atof(words_cleaned[6].c_str());
         //ratecount[ch] = atof(words_cleaned[15].c_str());

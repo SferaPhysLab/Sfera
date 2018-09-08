@@ -63,7 +63,7 @@ int main( int argc, char* argv[] ) {
   double x_value = 0., y_value = 0., ex_value = 0., ey_value = 0.;
   std::vector<double> v;
   
-  TGraphErrors *f = new TGraphErrors(1, x, y, ex, ey);
+  TGraphErrors *f = new TGraphErrors(1, x, y, ex, ey);  
   TGraphErrors *gr = new TGraphErrors(16, x_ch, y_ch, ex_ch, ey_ch); 
 
   //crea cartella dove mettere i plot se non presente
@@ -186,6 +186,7 @@ int main( int argc, char* argv[] ) {
 
       c1->SetGrid();
       f->Draw("AP");
+      f->SetName(Form("f_%d", channel));
 
       f->SetMarkerStyle(21);
 

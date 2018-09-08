@@ -1,0 +1,45 @@
+NOME PROGRAMMA	DESCRIZIONE
+
+noiseHisto_all: riempie un histo con i primi 50 punti di ogni segnale (valore lontano dalla tipica soglia del trigger), e lo fa per ogni canale.
+		IN: tree dei dati (asciiToTree) ; OUT: tanti histo quanti sono i canali (nome noise_histograms.root)
+
+baseline_noise: riceve in input noise_histograms.root, ne estrae la media, e valuta se, all’interno dei 50 punti, vi sono almeno cinque punti 			consecutivi che distano dalla media più delle normali fluttuazioni di rumore (la soglia è fissata a 5 mV, in quanto l’ampiezza globale 			del rumore attorno alla media non supera 8 mV). In tal caso scarta l’evento e non lo inserisce nell’istogramma. Nel caso in cui i 			punti consecutivi sono meno di 5, si segnala una spike.
+		IN: tree, noise_histograms.root ; OUT: noise_histograms_filtered.root (istogramma filtrato), baseline.root (media 50 punti vs numero 			di evento)
+
+baseline_time: 	produce un grafico in cui ogni punto è la baseline (media primi 50) mediata su eventi diversi (in particolare in un certo intervallo 			di tempo, es ogni mezz'ora).
+		IN: tree, noise_histograms_filtered ; OUT: baseline_time.root (variazione temporale della baseline rispetto alla media (fornita da 			noise_histograms_filtered) per ogni canale), baseline_channel.root (variazione baseline media da canale a canale).
+
+baseline_voltage: gestisce la sequenza $asciiToTree$, $noiseHisto\_all$ e $baseline\_noise$ per file di dati raccolti a diverse tensioni e in date 			diverse, utilizzando script bash. In seguito gestisce l'apertura di un file di output e del programma $voltage\_file$ che riempie il 			file con il valore di tensione e la media della baseline (a cui viene sottratto l'offset impostato con wavecatcher per praticità 			grafica). Infine apre il file per produrre il grafico. [V]
+
+baseline_pulseshape2: Crea un nuovo tree sottraendo la baseline media (media di noise_histogram_filtered) e calcolando la carica (con la funzione 			GetSum di TH1).
+		IN: tree.root , noise_histogram_filtered.root ; OUT: tree_new.root
+
+charge_base2: Questo programma confronta la differenza della carica calcolata con wavecatcher con l'integrale della pulse shape sottraendo o no la 			baseline, per verificare se il programma sottrae o no la baseline. (Se sì ci si aspetta che l'intercetta sia zero)
+		IN: tree.root, tree_new.root; OUT: charge_base2.root (grafico con le due rette)
+
+baseline_error: Calcola l'errore dQ/Q vs Q che si fa sottraendo la media dei primi 50 punti anziché la media dell'istogramma della baseline (ovvero 			parte dell'errore che fa wavecatcher). dQ è ((baseline relativa al singolo evento) - (baseline media dall'istogramma)) * 1024, mentre 			per Q si sottrae la baseline relativa e si fa GetSum() vs Carica Wavecatcher
+		IN: tree.root, noise_histograms_filtered.root; OUT: baseline_error.root (grafico dQ/Q vs Q)
+
+baseline_error2: Come prima ma "errore medio", ovvero anziché dQ, che mostra l'errore che si fa ogni volta, usa la sigma dell'istogramma delle baseline
+		IN: tree.root, noise_histograms_filtered.root; OUT: baseline_error2.root, baseline_histograms_filtered.root (histo delle baseline, 			media primi 50 punti x ogni evento)
+
+baseline_error_rumore: Sottrae la media dei primi 50 punti agli eventi di solo rumore, calcola la carica a mano (wavecatcher dà zero spaccato, ma 			poiché le due definizioni di carica coincidono a cariche != 0, si pensa vada bene uguale) per verificare che non ci siano shift sul 			valore della carica, ma che sia centrata in zero con la risoluzione. 	
+		IN: tree.root; OUT: charge_error.root (histo carica x eventi con solo rumore)
+
+sorgenti: fa i fit di tutte le sorgenti, stampa i grafici e crea un file .dat con i valori dei picchi gaussiani corrispondenti ai picchi dello 			spettro. Infine produce la retta di linearità e calcola l'errore sui punti numericamente in modo che il chi quadro sia 1. 
+		IN: file measurement di bario, cesio, cobalto, sodio e numero del canale; OUT: file root dei fit; retta di linearità
+
+time_tree: Crea un nuovo tree contenente solo gli eventi interessanti (carica intorno al picco del Na22) e aggiunge le informazioni temporali: tempo 			associato al segnale e tempo di scintillazione, stimati a partire da un fit della pulseshape.
+		IN: file tree_new (Na22 in AND); OUT: file tree_new_time.root (tree con info temporali)
+
+time_tree_soglia: Crea un nuovo tree contenente solo gli eventi interessanti (carica intorno al picco del Na22) e aggiunge le informazioni temporali: 			tempo associato al segnale stimato da un algoritmo a soglia (fornita dall'utente)
+		IN: file tree_new (Na22 in AND); OUT: file tree_new_time.root (tree con info temporali)
+
+time_resolution: Prende i tempi associati alle pulseshape e riempie un istogramma con le differenze tra canali opposti.
+		IN:  [rootFileName_new_time] (type Na22 in AND); OUT: time_histograms e time_histogram_all.root (istogrammi delle differenze temporali 			per singolo canale e per tutti i canali)
+
+time_graph:  Grafica media e dev std in funzione della coppia di canali opposti aprendo i vari time_histograms.
+		IN: roottree_new_time; OUT: time_mean e time_sigma.root (grafici media e dv std)
+
+tresVSthresh: Questo programma esegue in sequenza time_tree e time_resolution, dando in ingresso diverse soglie per trovare la soglia con migliore 			risoluzione (per ciascuna coppia di canali).
+		IN: tree_new; OUT: tresVSthresh.dat 

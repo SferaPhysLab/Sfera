@@ -9,6 +9,8 @@
 
 #define N_soglia 50
 
+//NOTA: per essere sicuri che noise_filtered racchiuda tutto, definire h_noise_filtered tra h_baseline->GetMinimun() e GetMaximum()
+
 int main( int argc, char* argv[] ) {
 
   if( argc!= 3 ) {
@@ -148,8 +150,10 @@ int main( int argc, char* argv[] ) {
 	    baseline += pshape[channel][i];  // media baseline a canale fissato (fornito dall'utente)
 	    h_noise_filtered->Fill(pshape[channel][i]);
 	  }
-	}
+	} //ciclo su i 
 
+	//	ev_Ok = true;  //aggiunta per mostrare l'efficacia dell'algoritmo
+	
 	if(ev_Ok){
 	    baseline/= N_soglia;
 

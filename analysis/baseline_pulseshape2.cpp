@@ -11,9 +11,9 @@
 int main( int argc, char* argv[] ) {
 
   if( argc!= 3 ) {
-    std::cout << "USAGE: ./baseline_pulseshape [rootFileName] [/path/rootFileName (type noise_histograms_filtered)]" << std::endl;
+    std::cout << "USAGE: ./baseline_pulseshape [rootFileName] [/path/rootFileName (type noise_histograms_filtered)]. Nuovo tree sottraendo la baseline e calcolando la carica." << std::endl;
     exit(1);
-  }
+  } 
 
   std::string fileName(argv[1]);
   std::string fileName2(argv[2]);
@@ -30,15 +30,18 @@ int main( int argc, char* argv[] ) {
   int ev, newev;
   int nch, newnch, ch_max, channel;
   float pshape[128][1024];
+  float vamp[128];
   float newpshape[128][1024];
   float newvcharge[128];
-  
+  float newvamp[128];
   float mean_baseline[128]; 
 
 
   tree->SetBranchAddress( "ev" , &ev     );
   tree->SetBranchAddress( "nch"   , &nch    );
-  tree->SetBranchAddress( "pshape", &pshape );	
+  tree->SetBranchAddress( "pshape", &pshape );
+  tree->SetBranchAddress( "vamp", &vamp );
+  
 
    size_t pos = 0;
   std::string prefix;
@@ -54,7 +57,7 @@ int main( int argc, char* argv[] ) {
   newtree->Branch( "nch"      , &newnch     , "newnch/I"           );
   newtree->Branch( "pshape"   , newpshape   , "newpshape[newnch][1024]/F");
   newtree->Branch( "vcharge"   , newvcharge   , "newvcharge[newnch]/F");
-
+  newtree->Branch( "vamp"   , newvamp   , "newvamp[newnch]/F");
   
   tree->GetEntry(0);
   ch_max = nch;
@@ -96,6 +99,7 @@ int main( int argc, char* argv[] ) {
 	     h1->SetBinContent( i+1, newpshape[channel][i] );
 	  }
 	   newvcharge[channel] = h1->GetSum();
+	   newvamp[channel] = vamp[channel];
 	}
 
 	newtree->Fill();

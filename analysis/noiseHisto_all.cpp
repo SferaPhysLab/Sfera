@@ -83,7 +83,7 @@ int main( int argc, char* argv[] ) {
 	  exit(11);
 	  }*/
 
-	if (iEntry % 100 == 0) 
+	if (iEntry % 10000 == 0) 
 	  std::cout << "Event : " << ev << std::endl;
 
 
