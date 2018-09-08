@@ -1,0 +1,17 @@
+In questa cartella il programma per la simulazione di un singolo cristallo.
+
+Compilare con CMake indicando le librerie geant l'intera cartella. Se la cartella analysis crea problemi di compilazione spostarla momentaneamente.
+
+Modificando il file src/B3DetectorConstruction.cc si puo' scegliere se rivestire o no il cristallo di alluminio impostando il materiale del guscio esterno
+(alluminio se rivestito, aria altrimenti).
+
+Il programma per la simulazione e' exampleB3a. Il risultato della simulazione e' salvato nel rootfile B3.root.
+
+
+Nella cartella analysis sono presenti:
+_ gamma.mac	macro per la simulazione di fotoni; va passata al programma quando chiamato (./exampleB3a gamma.mac) e permette una simulazione senza interfaccia grafica piu' veloce
+_ cesio.mac	macro per la simulazione del cesio
+_ sodio.mac	macro per la simulazione del sodio
+_ Tree.cpp	Programma per la correzione della risoluzione secondo lo schema descritto in relazione; ammette come argomento un file root risultato della simulazione e restituisce un altro file root con il nuovo tree corretto
+_ macro.C	Esempio di studio finale. La macro root e' molto specifica e funziona solo con i particolari percorsi e convenzioni utilizzati. Se si vuole utilizzare fare attenzione alla compatibilita' in particolare dei branch dei tree, e impostare correttamente i nomi dei file e i canali utilizzati
+

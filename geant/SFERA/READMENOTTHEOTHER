@@ -1,0 +1,15 @@
+In questa cartella il programma per la simulazione di tre anelli.
+
+ATTENZIONE: c'e' una leggera sovrapposizione tra i cristalli; non crea problemi alla simulazione ma sarebbe meglio eliminarla.
+ATTENZIONE: per lo studio della coincidenza con il sodio controllare come i canali sono ordinati nel tree.
+
+Compilare con CMake indicando le librerie geant l'intera cartella. Se la cartella analysis crea problemi di compilazione spostarla momentaneamente.
+
+Il programma per la simulazione e' exampleB3a. Il risultato della simulazione e' salvato nel rootfile g4data.root. Le energie sono in keV.
+
+
+Nella cartella analysis sono presenti:
+_ cesio.mac	macro per la simulazione del cesio; va passata al programma quando chiamato (./exampleB3a gamma.mac) e permette una simulazione senza interfaccia grafica piu' veloce
+_ sodio.mac	macro per la simulazione del sodio
+_ Tree.cpp	Programma per la correzione della risoluzione secondo lo schema descritto in relazione; ammette come argomento un file root risultato della simulazione e restituisce un altro file root con il nuovo tree corretto
+

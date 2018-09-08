@@ -1,0 +1,11 @@
+Qui sono raccolti sorgenti per le simulazioni:
+
+_ CRISTALLO	simulazione di un singolo cristallo
+_ SFERA		simulazione di tre anelli disposti come nella sfera
+
+
+Le simulazioni sono basate sull'esempio geant B3. L'esempio comprende due programmi simili (a, b), per le simulazioni si e' sempre utilizzato esempioB3a. Si consiglia di utilizzare questo perche'
+benche' le modifiche sulla geometria agiscano su entrambi, eventuali modifiche che agiscono su uno solo dei due sono state fatte su a.
+
+
+Per modificare la geometria o i materiali modificare il file src/B3DetectorConstruction.cc

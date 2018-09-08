@@ -1,0 +1,4 @@
+/run/initialize
+/gun/particle ion
+/gun/ion 55 137 
+/run/beamOn 1000000
