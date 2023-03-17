@@ -46,8 +46,8 @@ int main( int argc, char* argv[] ) {
   int ev;
   int nch;
   float base     [128];
-  float vamp     [128];
-  float vcharge  [128];
+  float amp      [128];
+  float charge   [128];
   float letime   [128];
   float tetime   [128];
   //float ratecount[128];
@@ -55,8 +55,8 @@ int main( int argc, char* argv[] ) {
   tree->Branch( "ev"       , &ev      , "ev/I"            );
   tree->Branch( "nch"      , &nch     , "nch/I"           );
   tree->Branch( "base"     , base     , "base[nch]/F"     );
-  tree->Branch( "vamp"     , vamp     , "vamp[nch]/F"     );
-  tree->Branch( "vcharge"  , vcharge  , "vcharge[nch]/F"  );
+  tree->Branch( "amp"      , amp      , "amp[nch]/F"      );
+  tree->Branch( "charge"   , charge   , "charge[nch]/F"   );
   tree->Branch( "letime"   , letime   , "letime[nch]/F"   );
   tree->Branch( "tetime"   , tetime   , "tetime[nch]/F"   );
   //tree->Branch( "ratecount", ratecount, "ratecount[nch]/F");
@@ -112,8 +112,8 @@ int main( int argc, char* argv[] ) {
         ch            = atoi(words_cleaned[0].c_str());
         //ev            = atoi(words_cleaned[1].c_str());
         base     [ch] = atof(words_cleaned[2].c_str());
-        vamp     [ch] = atof(words_cleaned[3].c_str());
-        vcharge  [ch] = atof(words_cleaned[4].c_str());
+        amp      [ch] = atof(words_cleaned[3].c_str());
+        charge   [ch] = atof(words_cleaned[4].c_str());
         letime   [ch] = atof(words_cleaned[5].c_str());
         tetime   [ch] = atof(words_cleaned[6].c_str());
         //ratecount[ch] = atof(words_cleaned[15].c_str());
@@ -121,8 +121,8 @@ int main( int argc, char* argv[] ) {
       }
 
       if( words[0]=="===" && words[1]=="Event" && wasReadingEvent==false ) {
-	ev            = atoi(words[2].c_str());	
-	//std::cout << ev << std::endl;
+        ev            = atoi(words[2].c_str());	
+        //std::cout << ev << std::endl;
       }
 
     } // while get lines
