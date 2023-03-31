@@ -50,6 +50,7 @@ int main( int argc, char* argv[] ) {
 
   int ev=-1;
   int nch;
+  int   ch       [128];
   float base     [128];
   float amp      [128];
   float charge   [128];
@@ -60,6 +61,7 @@ int main( int argc, char* argv[] ) {
 
   tree->Branch( "ev"       , &ev      , "ev/I"            );
   tree->Branch( "nch"      , &nch     , "nch/I"           );
+  tree->Branch( "ch"       , ch       , "ch[nch]/I"     );
   tree->Branch( "base"     , base     , "base[nch]/F"     );
   tree->Branch( "amp"      , amp      , "amp[nch]/F"      );
   tree->Branch( "charge"   , charge   , "charge[nch]/F"   );
@@ -73,7 +75,6 @@ int main( int argc, char* argv[] ) {
   bool wasReadingEvent = false;
   bool readyForPulseShape = false;
 
-  int ch = -1;
 
 
   if( fs.good() ) {
@@ -105,7 +106,6 @@ int main( int argc, char* argv[] ) {
         tree->Fill();
  
         nch = 0;
-        ch = -1;
         wasReadingEvent = false;
 
       } else if( words[0]=="===" && words[1]=="CH:" ) {
@@ -113,20 +113,22 @@ int main( int argc, char* argv[] ) {
         wasReadingEvent = true;
         readyForPulseShape = true;
 
+        ch       [nch] = atoi(words[2].c_str());
+        base     [nch] = atof(words[8].c_str());
+        amp      [nch] = atof(words[11].c_str());
+        charge   [nch] = atof(words[14].c_str());
+        letime   [nch] = atof(words[17].c_str());
+        tetime   [nch] = atof(words[20].c_str());
+        ratecount[nch] = atof(words[23].c_str());
+
         nch += 1;
 
-        ch            = atoi(words[2].c_str());
-        base     [ch] = atof(words[8].c_str());
-        amp     [ch] = atof(words[11].c_str());
-        charge  [ch] = atof(words[14].c_str());
-        letime   [ch] = atof(words[17].c_str());
-        tetime   [ch] = atof(words[20].c_str());
-        ratecount[ch] = atof(words[23].c_str());
 
-      } else if( readyForPulseShape && ch>=0 ) {
+      } else if( readyForPulseShape ) {
+      //} else if( readyForPulseShape && ch[nch]>=0 ) {
   
         for( unsigned i=0; i<words.size(); ++i ) 
-          pshape[ch][i] = atof(words[i].c_str());
+          pshape[nch-1][i] = atof(words[i].c_str());
 
         readyForPulseShape = false;
    
