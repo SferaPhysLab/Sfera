@@ -93,7 +93,8 @@ int main( int argc, char* argv[] ) {
         if( isNumber(words[i]) ) words_cleaned.push_back( words[i] );
       }
 
-
+      if (words.size()==0) continue; // protect from truncated data-taking 
+      
       if( words[0]=="===" && words[1]=="Event" && wasReadingEvent ) {
 
         if( ev % 100 == 0 ) std::cout << "   ... analyzing event: " << ev << std::endl;
